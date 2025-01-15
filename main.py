@@ -10,6 +10,7 @@ from deepdiff import DeepDiff
 from colorama import init, Fore
 from urllib.parse import urlparse
 import socket
+import ipaddress
 
 # Inicializace colorama s automatickým resetem barev
 init(convert=True)
@@ -45,6 +46,29 @@ def get_valid_url():
         else:
             print(f"{Fore.RED}Neplatná URL. Prosím, zkuste to znovu.{Fore.RESET}")
 
+# Tato funkce validuje IP adresu
+# Vrací buď validní IP adresu, nebo False, pokud je prázdná
+def get_and_validate_ip():
+    while True:
+        ip = input("Zadej IP adresu, kde má doména být (origin server), anebo nech prázdné pro získání IP z DNS: ").strip()
+        # Pokud je prázdná, vrátí False
+        if ip == '':
+            return False
+        # ukončení skriptu pokud zadá exit
+        if ip.lower() == 'exit':
+            print("Ukončuji skript.")
+            exit(0)
+
+        try:
+            # Otestuje IP adresu
+            ipaddress.ip_address(ip)
+            # Pokud je validní, vrátí ji
+            return ip
+        except ValueError:
+            # Jinak vypíše chybu a nechá uživatele opakovat
+            print(f"{Fore.RED}Neplatná IP adresa. Prosím, zkuste to znovu.{Fore.RESET}")
+
+
 # Vytiskne hlavičky s zarovnáním hodnot.
 def print_headers(headers_dict):
     if not headers_dict:
@@ -63,15 +87,21 @@ while True:
     url = get_valid_url()
     parsed_url = urlparse(url)
     host = parsed_url.hostname
+    origin_ip = get_and_validate_ip()
 
-    # Pokus o vyřešení IP adresy hostitele
-    try:
-        ip_address = socket.gethostbyname(host)
-        print(f"{Fore.GREEN}IP adresa pro {host}: {ip_address}{Fore.RESET}")
-    except socket.gaierror:
-        print(f"{Fore.RED}Chyba: Nelze resolvovat IP adresu pro hostitele '{host}'.{Fore.RESET}")
-        print("\n--- Nemá cenu posílat další (jiné) requesty ---\n")
-        continue  # Přeskočí GET request a pokračuje s další URL
+    # Pokus o vyřešení IP adresy hostitele pokud není zadána origin IP
+    if origin_ip == False:
+        try:
+            ip_address = socket.gethostbyname(host)
+            print(f"{Fore.GREEN}IP adresa pro {host} (získáno z DNS): {ip_address}{Fore.RESET}")
+        except socket.gaierror:
+            print(f"{Fore.RED}Chyba: Nelze resolvovat IP adresu pro hostitele '{host}'.{Fore.RESET}")
+            print("\n--- Nemá cenu posílat další (jiné) requesty ---\n")
+            continue  # Přeskočí GET request a pokračuje s další URL
+
+    # TODO else pro zpracování origin IP
+
+    # TODO upravit request aby šel na IP adresu webserveru
 
     # Odesílání HEAD requestu
     try:
