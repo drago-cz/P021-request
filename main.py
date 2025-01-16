@@ -1,9 +1,4 @@
 # Skript, bude posílat requesty na URL a měřit odezvu 
-"""
-TO DO:
-- ošetření timeoutu
-- přidání nějakých dalších informací jako je IP adresa
-"""
 import requests
 import time
 from deepdiff import DeepDiff
@@ -11,6 +6,10 @@ from colorama import init, Fore
 from urllib.parse import urlparse
 import socket
 import ipaddress
+import urllib3
+
+# vypnutí varování od requests
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Inicializace colorama s automatickým resetem barev
 init(convert=True)
@@ -19,8 +18,6 @@ headers = {
     'User-Agent': 'Inteligent Verification Autonomous Network/CyberOS 5.0 (SynthOS NT 10.0; Synth64; x64) CyberCode/537.36 (HyperHTML, like Quantum) Quantum/537.36',
     'Accept-Language': 'en-US;q=0.8,en;q=0.7'
 }
-
-print(f"Useragent: {Fore.GREEN}{headers}{Fore.RESET}")
 
 # Ověří, zda je zadaná URL platná.
 # Podmínky:
@@ -98,17 +95,39 @@ while True:
             print(f"{Fore.RED}Chyba: Nelze resolvovat IP adresu pro hostitele '{host}'.{Fore.RESET}")
             print("\n--- Nemá cenu posílat další (jiné) requesty ---\n")
             continue  # Přeskočí GET request a pokračuje s další URL
-
-    # TODO else pro zpracování origin IP
-
-    # TODO upravit request aby šel na IP adresu webserveru
+    else:
+        ip_address = origin_ip
+        print(f"{Fore.GREEN}Zadána origin IP adresa: {ip_address}{Fore.RESET}")
 
     # Odesílání HEAD requestu
     try:
-        print(f"\nPosílám request na {Fore.YELLOW}{url}{Fore.RESET} typu {Fore.GREEN}HEAD{Fore.RESET}")
         start = time.time()
 
-        response_head = requests.head(url, headers=headers, allow_redirects=False, timeout=10)
+        # Do head přidáme host
+        if origin_ip: 
+            headers['Host'] = host
+
+            print(f"Final headers being sent:{Fore.GREEN}{headers}{Fore.RESET}")
+
+            parsed_url = urlparse(url)
+            protocol = parsed_url.scheme  # Protokol (http nebo https)
+            path = parsed_url.path  # Cesta (např. /slozka/soubor)
+            query = parsed_url.query  # Parametry (např. param1=hodnota1&param2=hodnota2)
+
+            # Složení nové URL
+            new_url = f"{protocol}://{ip_address}{path}"
+            if query:  # Přidání parametrů, pokud existují
+                new_url += f"?{query}"
+
+            # debug
+            print("Původní URL:", url)
+            print("Nová URL s IP adresou:", new_url)
+
+            url = new_url
+
+        print(f"\nPosílám request na {Fore.YELLOW}{url}{Fore.RESET} typu {Fore.GREEN}HEAD{Fore.RESET}")
+
+        response_head = requests.head(url, headers=headers, allow_redirects=False, timeout=10, verify=False)
         json1 = response_head.headers
         status_1 = response_head.status_code
         end = time.time()
@@ -134,7 +153,7 @@ while True:
         print(f"\nPosílám request na {Fore.YELLOW}{url}{Fore.RESET} typu {Fore.GREEN}GET{Fore.RESET}")
         start = time.time()
 
-        response_get = requests.get(url, headers=headers, allow_redirects=False, timeout=10)
+        response_get = requests.get(url, headers=headers, allow_redirects=False, timeout=10, verify=False)
         json2 = response_get.headers
         status_2 = response_get.status_code
         end = time.time()
