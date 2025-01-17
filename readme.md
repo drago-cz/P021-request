@@ -29,7 +29,7 @@ pip install requests deepdiff colorama
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/your-username/url-response-measurement.git
+   git clone https://github.com/drago-cz/P021-request.git
    cd url-response-measurement
    ```
 
@@ -52,7 +52,7 @@ pip install requests deepdiff colorama
 Run the script using Python:
 
 ```bash
-python script.py
+python main.py
 ```
 
 ### Steps:
@@ -109,30 +109,8 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgements
 
-Special thanks to [ChatGPT-4o](https://openai.com/product) and [ChatGPT o1-mini](https://openai.com/product) for their assistance in developing this script.
-
-# Contact
-
-For any questions or suggestions, feel free to open an issue or contact [your-email@example.com](mailto:your-email@example.com).
+Special thanks to [ChatGPT-4o](https://chatgpt.com/) and [ChatGPT o1-mini](https://chatgpt.com/) for their assistance in developing this script.
 
 # Disclaimer
 
 Use this script responsibly. Ensure you have permission to send requests to the target URLs to avoid violating any terms of service or legal regulations.
-
-# Contribution
-
-Contributions are welcome! Please fork the repository and submit a pull request with your enhancements.
-
-# Screenshots
-
-*Include screenshots of the script in action here if available.*
-
-# Changelog
-
-*Optionally include a changelog to document updates and changes over time.*
-
-# Future Improvements
-
-- Add support for additional HTTP methods.
-- Implement asynchronous requests for better performance.
-- Enhance the comparison functionality to include body content differences.
