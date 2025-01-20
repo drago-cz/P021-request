@@ -1,50 +1,51 @@
-A Python script designed to send HTTP `HEAD` and `GET` requests to specified URLs, measure response times, and compare response headers. This tool is useful for monitoring website performance, validating server responses, and debugging HTTP interactions.
+# HTTP Request Debugging Tool (`main.py`)
+
+This Python script combines functionality from two original scripts I developed as a proof of concept and improves upon them with enhancements and detailed inline documentation (special thanks to ChatGPT 4o for assistance). The script is a simple tool for comparing HTTP `HEAD` and `GET` requests, measuring response times, and optionally sending requests directly to the origin server using its IP address.
+
+## Repository
+
+[GitHub Repository: drago-cz/P021-request](https://github.com/drago-cz/P021-request)
+
+## Use case and origin
+
+The current script is a combination of two scripts I made for two different user cases.
+
+### 1. Debugging Slow Response Times for `HEAD` Requests
+A customer reported that the [WEDOS OnLine monitoring tool](https://www.wedos.online/) showed their website as slow, despite it loading quickly in practice. Upon reviewing the access logs, I discovered that `HEAD` requests were indeed slower. To confirm this behavior, I developed the initial script to compare the response times of `HEAD` and `GET` requests.
+
+This tool revealed that the customer's CMS did not return cached responses for `HEAD` requests. Based on these findings, WEDOS OnLine was updated to allow users to choose between `HEAD` and `GET` for availability checks.
+
+### 2. Sending Requests Directly to the Origin Server
+The second script was an evolution of the first, adding the capability to send requests directly to the origin web server using its IP address. This functionality is particularly useful when:
+- Planning to migrate a website to a new hosting provider.
+- Investigating issues behind a reverse proxy.
+
+Both scripts were eventually merged into this single, improved version (`main.py`).
 
 ## Features
 
-- **URL Validation**: Ensures that the provided URL has a valid scheme (`http` or `https`) and domain.
-- **IP Address Handling**: Allows specifying an origin IP address or automatically resolves the IP via DNS.
-- **Custom Headers**: Utilizes customizable HTTP headers to mimic specific client behaviors.
-- **Response Measurement**: Measures and displays the response time for both `HEAD` and `GET` requests.
-- **Header Comparison**: Compares headers from `HEAD` and `GET` responses, highlighting differences.
-- **Color-Coded Output**: Uses colored text for better readability and easier identification of information.
-- **Error Handling**: Gracefully handles connection errors, timeouts, and other request exceptions without interrupting the script.
-
-## Requirements
-
-- Python 3.6 or higher
-- The following Python packages:
-  - `requests`
-  - `deepdiff`
-  - `colorama`
-  
-You can install the required packages using `pip`:
-
-```bash
-pip install requests deepdiff colorama
-```
+- **URL Validation**: Ensures the provided URL is valid before sending requests.
+- **HEAD vs. GET Comparison**: Measures and compares response times and headers for both request types.
+- **Direct Origin Requests**: Supports sending requests to the origin server using its IP address instead of the domain name.
+- **Detailed Header Analysis**:
+  - Detects and reports differences between `HEAD` and `GET` responses.
+  - Highlights added, missing, or changed headers.
+- **DNS Resolution**: Automatically resolves the IP address of a domain if no origin IP is provided.
+- **Error Handling**: Robust exception handling for connection errors, timeouts, and other issues.
 
 ## Installation
 
-1. **Clone the Repository**
-
+1. Clone this repository:
    ```bash
    git clone https://github.com/drago-cz/P021-request.git
-   cd url-response-measurement
    ```
-
-2. **Install Dependencies**
-
-   Ensure you have Python 3.6+ installed. Install the required packages:
-
+2. Navigate to the project directory:
+   ```bash
+   cd P021-request
+   ```
+3. Install the required dependencies:
    ```bash
    pip install -r requirements.txt
-   ```
-
-   *Alternatively, install them manually:*
-
-   ```bash
-   pip install requests deepdiff colorama
    ```
 
 ## Usage
@@ -55,62 +56,29 @@ Run the script using Python:
 python main.py
 ```
 
-### Steps:
+Follow the prompts to:
+1. Input a URL to test (Including HTTP or HTTPS).
+2. Optionally specify the origin server's IP address.
 
-1. **Enter URL**: When prompted, input the URL you want to verify. Ensure it starts with `http://` or `https://`. Type `exit` to terminate the script.
-   
-   ```
-   Zadejte URL kterou prověříme (nebo 'exit' pro ukončení):
-   ```
+The script will display:
+- Response times for `HEAD` and `GET` requests.
+- Header differences between the two request types.
+- The first 100 characters of the response body (for `GET` requests).
+- Detailed error messages for failed requests.
 
-2. **Specify Origin IP (Optional)**: Enter the IP address where the domain should resolve (origin server). Leave blank to automatically resolve via DNS. Type `exit` to terminate.
+## Requirements
 
-   ```
-   Zadej IP adresu, kde má doména být (origin server), anebo nech prázdné pro získání IP z DNS:
-   ```
+- Python 3.7 or higher
+- Required libraries (install via `pip`):
+  - `requests`
+  - `colorama`
+  - `deepdiff`
 
-3. **View Results**: The script will send `HEAD` and `GET` requests to the provided URL, display response codes, response times, headers, and differences between `HEAD` and `GET` responses.
+## Notes
 
-4. **Repeat**: After completing the requests, you can enter another URL or type `exit` to quit.
+- SSL certificate warnings are disabled for testing purposes.
+- The script's colored terminal output is compatible with Windows, thanks to the `colorama` library.
 
-## Example
+## Acknowledgments
 
-```bash
-$ python script.py
-Zadejte URL kterou prověříme (nebo 'exit' pro ukončení): https://www.example.com
-Zadej IP adresu, kde má doména být (origin server), anebo nech prázdné pro získání IP z DNS:
-IP adresa pro www.example.com (získáno z DNS): 93.184.216.34
-
-Posílám request na https://93.184.216.34 typu HEAD
-Odpověď vrátila kód 200 trvala 0.123 sekund.
----- hlavička  ----
-Content-Type : text/html; charset=UTF-8
-Content-Length : 1256
-...
-
-Posílám request na https://93.184.216.34 typu GET
-Odpověď vrátila kód 200 trvala 0.456 sekund.
----- hlavička  ----
-Content-Type : text/html; charset=UTF-8
-Content-Length : 1256
-...
-- Rozdíl hlaviček -
-V GET je navíc:
-  -
-V GET chybí:
-  -
-V GET je jinak:
-  -
-```
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
-## Acknowledgements
-
-Special thanks to [ChatGPT-4o](https://chatgpt.com/) and [ChatGPT o1-mini](https://chatgpt.com/) for their assistance in developing this script.
-
-# Disclaimer
-
-Use this script responsibly. Ensure you have permission to send requests to the target URLs to avoid violating any terms of service or legal regulations.
+Special thanks to **ChatGPT 4o** for assistance with documentation and code refinement.
